@@ -1,5 +1,5 @@
 //
-//  TableViewCell.swift
+//  CitiesTableViewCell.swift
 //  Weather
 //
 //  Created by Копаницкий Сергей on 18.08.2020.
@@ -8,7 +8,7 @@
 
 import UIKit
 
-class TableViewCell: UITableViewCell {
+class CitiesTableViewCell: UITableViewCell {
     
     public var cityImageView: UIImageView = {
         let imageView = UIImageView()

@@ -13,7 +13,7 @@ class SearchResultViewController: UIViewController {
     public var viewModel: SearchResultViewModelProtocol?
     
     private let reuseIdentifier = "Cell"
-    
+        
     private var tableView: UITableView = {
         let tableView = UITableView()
         let view = UIView(frame: .zero)
@@ -21,12 +21,14 @@ class SearchResultViewController: UIViewController {
         tableView.translatesAutoresizingMaskIntoConstraints = false
         return tableView
     }()
-
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         setupTableView()
         viewModel?.updateTableView = { [weak self] in
-            self?.tableView.reloadData()
+            DispatchQueue.main.async {
+                self?.tableView.reloadData()
+            }
         }
     }
     
@@ -44,7 +46,9 @@ class SearchResultViewController: UIViewController {
 
 
 extension SearchResultViewController: UITableViewDelegate {
-    
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+
+    }
 }
 
 extension SearchResultViewController: UITableViewDataSource {

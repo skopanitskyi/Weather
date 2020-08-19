@@ -34,9 +34,4 @@ class SearchResultViewModel: SearchResultViewModelProtocol {
         filteredCities = cities
         updateTableView?()
     }
-    
-    
-    deinit {
-        print("SearchResultViewModel deleted")
-    }
 }

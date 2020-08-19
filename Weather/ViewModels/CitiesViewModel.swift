@@ -13,13 +13,25 @@ protocol CitiesViewModelProtocol {
     func getCityName(at: Int) -> String
     func numberOfRowsInSection() -> Int
     func getImage(image: Downloaded, completion: @escaping ((UIImage) -> Void))
-    func getFilteredCities(name: String) -> [CityModel]
+    func getFilteredCities(name: String, completion: @escaping ([CityModel]) -> Void)
+    func pushController(at index: Int)
 }
 
 class CitiesViewModel: CitiesViewModelProtocol {
     
     private var cities = [CityModel]()
-        
+    
+    private var filteredCities = [CityModel]()
+
+    private let networkService: NetworkService
+    
+    private let coordinator: CitiesCoordinator
+    
+    init(coordinator: CitiesCoordinator, networkService: NetworkService) {
+        self.coordinator = coordinator
+        self.networkService = networkService
+    }
+            
     public func getCityName(at index: Int) -> String {
         return cities[index].name
     }
@@ -29,7 +41,7 @@ class CitiesViewModel: CitiesViewModelProtocol {
     }
     
     public func getImage(image: Downloaded, completion: @escaping ((UIImage) -> Void)) {
-        NetworkService().downloadImage(image: image) { result in
+        networkService.downloadImage(image: image) { result in
             switch result {
             case .success(let image):
                 completion(image)
@@ -39,7 +51,7 @@ class CitiesViewModel: CitiesViewModelProtocol {
         }
 }
     public func getCities(completion: () -> Void) {
-        NetworkService().getCities(from: "city.list") { result in
+        networkService.getCities(from: "city.list") { result in
             switch result {
             case .success(let cities):
                 self.cities = cities
@@ -50,7 +62,15 @@ class CitiesViewModel: CitiesViewModelProtocol {
         }
     }
     
-    public func getFilteredCities(name: String) -> [CityModel] {
-        return cities.filter { $0.name.contains(name) }
+    public func getFilteredCities(name: String, completion: @escaping ([CityModel]) -> Void) {
+        DispatchQueue.global(qos: .userInteractive).async {
+            let filteredCities = self.cities.filter { $0.name.contains(name) }
+            completion(filteredCities)
+        }
+    }
+    
+    public func pushController(at index: Int) {
+        let coordinates = cities[index].coord
+        coordinator.showWeatherController(coordinates: coordinates)
     }
 }

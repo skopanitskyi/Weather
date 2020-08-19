@@ -13,6 +13,8 @@ enum Downloaded: String {
     case temp2 = "https://infotech.gov.ua/storage/img/Temp3.png"
 }
 
+// api.openweathermap.org/data/2.5/weather?lat=51.50853&lon=-0.12574&units=metric&appid=7049524aabdc1b4822580782646fd690
+
 class NetworkService {
     
     private let diskCapacitySize = 50 * 1024 * 1024
@@ -34,7 +36,6 @@ class NetworkService {
         if let cache = cache.cachedResponse(for: URLRequest(url: URL(string: image.rawValue)!)) {
             guard let image = UIImage(data: cache.data) else { return }
             completion(.success(image))
-            print("cached")
         } else {
             urlSession().dataTask(with: URL(string: image.rawValue)!) { (data, response, error) in
                 if let error = error {
@@ -44,10 +45,28 @@ class NetworkService {
                 
                 if let image = UIImage(data: data!) {
                     completion(.success(image))
-                    print("downloded")
                 }
             }.resume()
         }
+    }
+    
+    public func fetchWatherData(lat: Double, lon: Double, completion: @escaping (Result<WeatherModel, Error>) -> Void) {
+        URLSession.shared.dataTask(with: URL(string: "http://api.openweathermap.org/data/2.5/weather?lat=\(lat)&lon=\(lon)&units=metric&appid=7049524aabdc1b4822580782646fd690")!) { (data, response, error) in
+            
+            if let error = error {
+                completion(.failure(error))
+                return
+            }
+            
+            if let data = data {
+                do {
+                    let weather = try JSONDecoder().decode(WeatherModel.self, from: data)
+                    completion(.success(weather))
+                } catch (let error) {
+                    completion(.failure(error))
+                }
+            }
+        }.resume()
     }
     
     public func getCities(from file: String, completion: (Result<[CityModel], Error>) -> Void) {

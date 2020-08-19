@@ -1,5 +1,5 @@
 //
-//  ViewController.swift
+//  CitiesViewController.swift
 //  Weather
 //
 //  Created by Копаницкий Сергей on 18.08.2020.
@@ -8,7 +8,7 @@
 
 import UIKit
 
-class ViewController: UIViewController {
+class CitiesViewController: UIViewController {
     
     public var viewModel: CitiesViewModelProtocol?
     
@@ -21,9 +21,9 @@ class ViewController: UIViewController {
     }()
     
     private var searchController: UISearchController = {
-        let searchResultController = SearchResultViewController()
-        searchResultController.viewModel = SearchResultViewModel()
-        let searchController = UISearchController(searchResultsController: searchResultController)
+        let searchController = UISearchController(searchResultsController: nil)
+        searchController.searchBar.placeholder = "Search city"
+        searchController.obscuresBackgroundDuringPresentation = false
         return searchController
     }()
     
@@ -31,15 +31,17 @@ class ViewController: UIViewController {
         super.viewDidLoad()
         view.backgroundColor = .white
         title = "Cities"
+        
         searchController.searchResultsUpdater = self
         navigationItem.searchController = searchController
-        navigationController?.navigationBar.prefersLargeTitles = true
+        definesPresentationContext = true
+        
         setupTableView()
         loadData()
     }
     
     private func loadData() {
-        viewModel?.getCities { [weak self] in
+        viewModel?.getCities() { [weak self] in
             self?.tableView.reloadData()
         }
     }
@@ -48,7 +50,7 @@ class ViewController: UIViewController {
         view.addSubview(tableView)
         tableView.dataSource = self
         tableView.delegate = self
-        tableView.register(TableViewCell.self, forCellReuseIdentifier: reuseIdentifier)
+        tableView.register(CitiesTableViewCell.self, forCellReuseIdentifier: reuseIdentifier)
         tableView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor).isActive = true
         tableView.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor).isActive = true
         tableView.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor).isActive = true
@@ -58,21 +60,25 @@ class ViewController: UIViewController {
 
 // MARK: - TableViewDelegate
 
-extension ViewController: UITableViewDelegate {
+extension CitiesViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         return 75
+    }
+    
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        viewModel?.pushController(at: indexPath.row)
     }
 }
 
 // MARK: - TableViewDataSource
 
-extension ViewController: UITableViewDataSource {
+extension CitiesViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return viewModel?.numberOfRowsInSection() ?? 0
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: reuseIdentifier, for: indexPath) as! TableViewCell
+        let cell = tableView.dequeueReusableCell(withIdentifier: reuseIdentifier, for: indexPath) as! CitiesTableViewCell
         let image: Downloaded = indexPath.row % 2 == 0 ? .temp1 : .temp2
         viewModel?.getImage(image: image) { image in
             DispatchQueue.main.async {
@@ -80,21 +86,20 @@ extension ViewController: UITableViewDataSource {
             }
         }
         cell.cityNameLabel.text = viewModel?.getCityName(at: indexPath.row)
-
+        
         return cell
     }
 }
 
 // MARK: - SearchResultsUpdating
 
-extension ViewController: UISearchResultsUpdating {
+extension CitiesViewController: UISearchResultsUpdating {
     func updateSearchResults(for searchController: UISearchController) {
         if let resultsController = searchController.searchResultsController as? SearchResultViewController {
-            guard let cityName = searchController.searchBar.text,
-                  let filteredCities = viewModel?.getFilteredCities(name: cityName) else {
-                    return
+            guard let cityName = searchController.searchBar.text else { return }
+            viewModel?.getFilteredCities(name: cityName) { filteredCities in
+                resultsController.viewModel?.setFilteredCities(cities: filteredCities)
             }
-            resultsController.viewModel?.setFilteredCities(cities: filteredCities)
         }
     }
 }
