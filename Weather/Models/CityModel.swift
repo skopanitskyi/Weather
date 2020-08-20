@@ -8,17 +8,7 @@
 
 import Foundation
 
-//{
-//    "id": 2960,
-//    "name": "‘Ayn Ḩalāqīm",
-//    "state": "",
-//    "country": "SY",
-//    "coord": {
-//        "lon": 36.321911,
-//        "lat": 34.940079
-//    }
-//},
-
+/// City model
 struct CityModel: Codable {
     public let id: Int
     public let name: String

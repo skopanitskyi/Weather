@@ -9,10 +9,59 @@
 import UIKit
 import MapKit
 
+/// Weather view controller displays the selected city on the map as well as weather information
 class WeatherViewController: UIViewController {
     
+    // MARK: - Class instance
+    
+    /// Number of labels that display information
+    private let numberOfLabels: CGFloat = 6
+    
+    /// Distance in meters from the current location
+    private let locationDistance: CLLocationDistance = 50000
+    
+    /// Weather view model instance
     public var viewModel: WeatherViewModelProtocol?
     
+    /// Description label instance
+    private lazy var descriptionLabel = createLabel("Description: ")
+    
+    /// Current temperature label instance
+    private lazy var currentTemperatureLabel = createLabel("Current temperature: ")
+    
+    /// Max temperature label instance
+    private lazy var maxTemperatureLabel = createLabel("Maximim temperature: ")
+    
+    /// Min temperature label instance
+    private lazy var minTemperatureLabel = createLabel("Minimum temperature: ")
+    
+    /// Humidity label instance
+    private lazy var humidityLabel = createLabel("Air humidity: ")
+    
+    /// Wind speed label instance
+    private lazy var windSpeedLabel = createLabel("Wind speed: ")
+    
+    /// Description value instance
+    private lazy var descriptionValue = createLabel(nil)
+    
+    /// Current temperature value instance
+    private lazy var currentTemperatureValue = createLabel(nil)
+    
+    /// Max temperature value instance
+    private lazy var maxTemperatureValue = createLabel(nil)
+    
+    /// Min temperature value instance
+    private lazy var minTemperatureValue = createLabel(nil)
+    
+    /// Humidity value instance
+    private lazy var humidityValue = createLabel(nil)
+    
+    /// Wind speed value instance
+    private lazy var windSpeedValue = createLabel(nil)
+    
+    // MARK: - Create UI elements
+    
+    /// Create map view
     private var mapView: MKMapView = {
         let mapView = MKMapView()
         mapView.showsScale = true
@@ -20,66 +69,42 @@ class WeatherViewController: UIViewController {
         return mapView
     }()
     
-    private lazy var descriptionLabel = createLabel(text: "Description: ")
+    /// Creates a label
+    /// - Parameter text: The text to be displayed on the label
+    private func createLabel(_ text: String?) -> UILabel {
+        let label = UILabel()
+        label.textAlignment = .center
+        label.font = UIFont.systemFont(ofSize: 14)
+        label.text = text
+        label.translatesAutoresizingMaskIntoConstraints = false
+        return label
+    }
     
-    private lazy var currentTemperatureLabel = createLabel(text: "Current temperature: ")
+    // MARK: - Class life cycle
     
-    private lazy var maxTemperatureLabel = createLabel(text: "Maximim temperature: ")
-    
-    private lazy var minTemperatureLabel = createLabel(text: "Minimum temperature: ")
-    
-    private lazy var humidityLabel = createLabel(text: "Air humidity: ")
-    
-    private lazy var windSpeedLabel = createLabel(text: "Wind speed: ")
-    
-    private lazy var descriptionValueLabel = createLabel(text: nil)
-    
-    private lazy var currentTemperatureValueLabel = createLabel(text: nil)
-    
-    private lazy var maxTemperatureValueLabel = createLabel(text: nil)
-
-    private lazy var minTemperatureValueLabel = createLabel(text: nil)
-
-    private lazy var humidityValueLabel = createLabel(text: nil)
-
-    private lazy var windSpeedValueLabel = createLabel(text: nil)
-
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .white
-        title = "Weather"
-        setupConstraintsForMapView()
-        setupConstraintsForDescriptionLabel()
-        setupConstraintsForCurrentTemperatureLabel()
-        setupConstraintsForMaxTemperatureLabel()
-        setupConstraintsForMinTemperatureLabel()
-        setupConstraintsForHumidityLabel()
-        setupConstraintsForWindSpeedLabel()
-        setupConstraintsForDescriptionValueLabel()
-        setupConstraintsForCurrentTemperatureValueLabel()
-        setupConstraintsForMaxTemperatureValueLabel()
-        setupConstraintsForMinTemperatureValueLabel()
-        setupConstraintsForHumidityValueLabel()
-        setupConstraintsForWindSpeedValueLabel()
-        
-        viewModel?.data = { [weak self] weatherData in
-            self?.descriptionValueLabel.text = weatherData.weather.first?.description
-            self?.currentTemperatureValueLabel.text = "\(weatherData.main.temp) ºC"
-            self?.maxTemperatureValueLabel.text = "\(weatherData.main.temp_max) ºC"
-            self?.minTemperatureValueLabel.text = "\(weatherData.main.temp_min) ºC"
-            self?.humidityValueLabel.text = "\(weatherData.main.humidity) %"
-            self?.windSpeedValueLabel.text = "\(weatherData.wind.speed) km/h"
-            let location = CLLocationCoordinate2D(latitude: CLLocationDegrees(floatLiteral: weatherData.coord.lat), longitude: CLLocationDegrees(floatLiteral: weatherData.coord.lon))
-            let anotation = MKPointAnnotation()
-            anotation.coordinate = location
-            anotation.title = weatherData.name
-            self?.mapView.addAnnotation(anotation)
-            let distance: CLLocationDistance = 50000
-            self?.mapView.setRegion(MKCoordinateRegion(center: location, latitudinalMeters: distance, longitudinalMeters: distance), animated: true)
-        }
+        setupMapView()
+        setupDescriptionLabel()
+        setupCurrentTemperatureLabel()
+        setupMaxTemperatureLabel()
+        setupMinTemperatureLabel()
+        setupHumidityLabel()
+        setupWindSpeedLabel()
+        setupDescriptionValue()
+        setupCurrentTemperatureValue()
+        setupMaxTemperatureValue()
+        setupMinTemperatureValue()
+        setupHumidityValue()
+        setupWindSpeedValue()
+        displayWeatherData()
     }
     
-    private func setupConstraintsForMapView() {
+    // MARK: - Add UI elements and setting constraints
+    
+    /// Add map view and setup constraints
+    private func setupMapView() {
         view.addSubview(mapView)
         mapView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor).isActive = true
         mapView.leadingAnchor.constraint(equalTo: view.leadingAnchor).isActive = true
@@ -87,108 +112,148 @@ class WeatherViewController: UIViewController {
         mapView.heightAnchor.constraint(equalTo: view.safeAreaLayoutGuide.heightAnchor, multiplier: 0.5).isActive = true
     }
     
-    private func setupConstraintsForDescriptionLabel() {
+    /// Add description label and setup constraints
+    private func setupDescriptionLabel() {
         view.addSubview(descriptionLabel)
         descriptionLabel.topAnchor.constraint(equalTo: mapView.bottomAnchor).isActive = true
         descriptionLabel.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 10).isActive = true
         descriptionLabel.widthAnchor.constraint(equalToConstant: 150).isActive = true
-        descriptionLabel.heightAnchor.constraint(equalTo: view.safeAreaLayoutGuide.heightAnchor, multiplier: 0.5 / 6).isActive = true
+        descriptionLabel.heightAnchor.constraint(equalTo: view.safeAreaLayoutGuide.heightAnchor, multiplier: 0.5 / numberOfLabels).isActive = true
     }
     
-    private func setupConstraintsForCurrentTemperatureLabel() {
+    /// Add current temperature label and setup constraints
+    private func setupCurrentTemperatureLabel() {
         view.addSubview(currentTemperatureLabel)
         currentTemperatureLabel.topAnchor.constraint(equalTo: descriptionLabel.bottomAnchor).isActive = true
         currentTemperatureLabel.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 10).isActive = true
         currentTemperatureLabel.widthAnchor.constraint(equalToConstant: 150).isActive = true
-        currentTemperatureLabel.heightAnchor.constraint(equalTo: view.safeAreaLayoutGuide.heightAnchor, multiplier: 0.5 / 6).isActive = true
+        currentTemperatureLabel.heightAnchor.constraint(equalTo: view.safeAreaLayoutGuide.heightAnchor, multiplier: 0.5 / numberOfLabels).isActive = true
     }
     
-    private func setupConstraintsForMaxTemperatureLabel() {
+    /// Add max temperature label and setup constraints
+    private func setupMaxTemperatureLabel() {
         view.addSubview(maxTemperatureLabel)
         maxTemperatureLabel.topAnchor.constraint(equalTo: currentTemperatureLabel.bottomAnchor).isActive = true
         maxTemperatureLabel.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 10).isActive = true
         maxTemperatureLabel.widthAnchor.constraint(equalToConstant: 150).isActive = true
-        maxTemperatureLabel.heightAnchor.constraint(equalTo: view.safeAreaLayoutGuide.heightAnchor, multiplier: 0.5 / 6).isActive = true
+        maxTemperatureLabel.heightAnchor.constraint(equalTo: view.safeAreaLayoutGuide.heightAnchor, multiplier: 0.5 / numberOfLabels).isActive = true
     }
     
-    private func setupConstraintsForMinTemperatureLabel() {
+    /// Add min temperature label and setup constraints
+    private func setupMinTemperatureLabel() {
         view.addSubview(minTemperatureLabel)
         minTemperatureLabel.topAnchor.constraint(equalTo: maxTemperatureLabel.bottomAnchor).isActive = true
         minTemperatureLabel.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 10).isActive = true
         minTemperatureLabel.widthAnchor.constraint(equalToConstant: 150).isActive = true
-        minTemperatureLabel.heightAnchor.constraint(equalTo: view.safeAreaLayoutGuide.heightAnchor, multiplier: 0.5 / 6).isActive = true
+        minTemperatureLabel.heightAnchor.constraint(equalTo: view.safeAreaLayoutGuide.heightAnchor, multiplier: 0.5 / numberOfLabels).isActive = true
     }
     
-    private func setupConstraintsForHumidityLabel() {
+    /// Add humidity label and setup constraints
+    private func setupHumidityLabel() {
         view.addSubview(humidityLabel)
         humidityLabel.topAnchor.constraint(equalTo: minTemperatureLabel.bottomAnchor).isActive = true
         humidityLabel.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 10).isActive = true
         humidityLabel.widthAnchor.constraint(equalToConstant: 150).isActive = true
-        humidityLabel.heightAnchor.constraint(equalTo: view.safeAreaLayoutGuide.heightAnchor, multiplier: 0.5 / 6).isActive = true
+        humidityLabel.heightAnchor.constraint(equalTo: view.safeAreaLayoutGuide.heightAnchor, multiplier: 0.5 / numberOfLabels).isActive = true
     }
     
-    private func setupConstraintsForWindSpeedLabel() {
+    /// Add wind speed label and setup constraints
+    private func setupWindSpeedLabel() {
         view.addSubview(windSpeedLabel)
         windSpeedLabel.topAnchor.constraint(equalTo: humidityLabel.bottomAnchor).isActive = true
         windSpeedLabel.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 10).isActive = true
         windSpeedLabel.widthAnchor.constraint(equalToConstant: 150).isActive = true
-        windSpeedLabel.heightAnchor.constraint(equalTo: view.safeAreaLayoutGuide.heightAnchor, multiplier: 0.5 / 6).isActive = true
+        windSpeedLabel.heightAnchor.constraint(equalTo: view.safeAreaLayoutGuide.heightAnchor, multiplier: 0.5 / numberOfLabels).isActive = true
     }
     
-    private func setupConstraintsForDescriptionValueLabel() {
-        view.addSubview(descriptionValueLabel)
-        descriptionValueLabel.topAnchor.constraint(equalTo: mapView.bottomAnchor).isActive = true
-        descriptionValueLabel.leadingAnchor.constraint(equalTo: descriptionLabel.trailingAnchor, constant: 10).isActive = true
-        descriptionValueLabel.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -10).isActive = true
-        descriptionValueLabel.heightAnchor.constraint(equalTo: view.safeAreaLayoutGuide.heightAnchor, multiplier: 0.5 / 6).isActive = true
+    /// Add description value  and setup constraints
+    private func setupDescriptionValue() {
+        view.addSubview(descriptionValue)
+        descriptionValue.topAnchor.constraint(equalTo: mapView.bottomAnchor).isActive = true
+        descriptionValue.leadingAnchor.constraint(equalTo: descriptionLabel.trailingAnchor, constant: 10).isActive = true
+        descriptionValue.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -10).isActive = true
+        descriptionValue.heightAnchor.constraint(equalTo: view.safeAreaLayoutGuide.heightAnchor, multiplier: 0.5 / numberOfLabels).isActive = true
     }
     
-    private func setupConstraintsForCurrentTemperatureValueLabel() {
-        view.addSubview(currentTemperatureValueLabel)
-        currentTemperatureValueLabel.topAnchor.constraint(equalTo: descriptionValueLabel.bottomAnchor).isActive = true
-        currentTemperatureValueLabel.leadingAnchor.constraint(equalTo: currentTemperatureLabel.trailingAnchor, constant: 10).isActive = true
-        currentTemperatureValueLabel.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -10).isActive = true
-        currentTemperatureValueLabel.heightAnchor.constraint(equalTo: view.safeAreaLayoutGuide.heightAnchor, multiplier: 0.5 / 6).isActive = true
+    /// Add current temperature value  and setup constraints
+    private func setupCurrentTemperatureValue() {
+        view.addSubview(currentTemperatureValue)
+        currentTemperatureValue.topAnchor.constraint(equalTo: descriptionValue.bottomAnchor).isActive = true
+        currentTemperatureValue.leadingAnchor.constraint(equalTo: currentTemperatureLabel.trailingAnchor, constant: 10).isActive = true
+        currentTemperatureValue.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -10).isActive = true
+        currentTemperatureValue.heightAnchor.constraint(equalTo: view.safeAreaLayoutGuide.heightAnchor, multiplier: 0.5 / numberOfLabels).isActive = true
     }
     
-    private func setupConstraintsForMaxTemperatureValueLabel() {
-        view.addSubview(maxTemperatureValueLabel)
-        maxTemperatureValueLabel.topAnchor.constraint(equalTo: (currentTemperatureValueLabel).bottomAnchor).isActive = true
-        maxTemperatureValueLabel.leadingAnchor.constraint(equalTo: maxTemperatureLabel.trailingAnchor, constant: 10).isActive = true
-        maxTemperatureValueLabel.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -10).isActive = true
-        maxTemperatureValueLabel.heightAnchor.constraint(equalTo: view.safeAreaLayoutGuide.heightAnchor, multiplier: 0.5 / 6).isActive = true
+    /// Add max temperature value  and setup constraints
+    private func setupMaxTemperatureValue() {
+        view.addSubview(maxTemperatureValue)
+        maxTemperatureValue.topAnchor.constraint(equalTo: (currentTemperatureValue).bottomAnchor).isActive = true
+        maxTemperatureValue.leadingAnchor.constraint(equalTo: maxTemperatureLabel.trailingAnchor, constant: 10).isActive = true
+        maxTemperatureValue.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -10).isActive = true
+        maxTemperatureValue.heightAnchor.constraint(equalTo: view.safeAreaLayoutGuide.heightAnchor, multiplier: 0.5 / numberOfLabels).isActive = true
     }
     
-    private func setupConstraintsForMinTemperatureValueLabel() {
-        view.addSubview(minTemperatureValueLabel)
-        minTemperatureValueLabel.topAnchor.constraint(equalTo: maxTemperatureValueLabel.bottomAnchor).isActive = true
-        minTemperatureValueLabel.leadingAnchor.constraint(equalTo: minTemperatureLabel.trailingAnchor, constant: 10).isActive = true
-        minTemperatureValueLabel.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -10).isActive = true
-        minTemperatureValueLabel.heightAnchor.constraint(equalTo: view.safeAreaLayoutGuide.heightAnchor, multiplier: 0.5 / 6).isActive = true
+    /// Add min temperature value  and setup constraints
+    private func setupMinTemperatureValue() {
+        view.addSubview(minTemperatureValue)
+        minTemperatureValue.topAnchor.constraint(equalTo: maxTemperatureValue.bottomAnchor).isActive = true
+        minTemperatureValue.leadingAnchor.constraint(equalTo: minTemperatureLabel.trailingAnchor, constant: 10).isActive = true
+        minTemperatureValue.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -10).isActive = true
+        minTemperatureValue.heightAnchor.constraint(equalTo: view.safeAreaLayoutGuide.heightAnchor, multiplier: 0.5 / numberOfLabels).isActive = true
     }
     
-    private func setupConstraintsForHumidityValueLabel() {
-        view.addSubview(humidityValueLabel)
-        humidityValueLabel.topAnchor.constraint(equalTo: minTemperatureValueLabel.bottomAnchor).isActive = true
-        humidityValueLabel.leadingAnchor.constraint(equalTo: humidityLabel.trailingAnchor, constant: 10).isActive = true
-        humidityValueLabel.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -10).isActive = true
-        humidityValueLabel.heightAnchor.constraint(equalTo: view.safeAreaLayoutGuide.heightAnchor, multiplier: 0.5 / 6).isActive = true
+    /// Add humidity value  and setup constraints
+    private func setupHumidityValue() {
+        view.addSubview(humidityValue)
+        humidityValue.topAnchor.constraint(equalTo: minTemperatureValue.bottomAnchor).isActive = true
+        humidityValue.leadingAnchor.constraint(equalTo: humidityLabel.trailingAnchor, constant: 10).isActive = true
+        humidityValue.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -10).isActive = true
+        humidityValue.heightAnchor.constraint(equalTo: view.safeAreaLayoutGuide.heightAnchor, multiplier: 0.5 / numberOfLabels).isActive = true
     }
     
-    private func setupConstraintsForWindSpeedValueLabel() {
-        view.addSubview(windSpeedValueLabel)
-        windSpeedValueLabel.topAnchor.constraint(equalTo: humidityValueLabel.bottomAnchor).isActive = true
-        windSpeedValueLabel.leadingAnchor.constraint(equalTo: windSpeedLabel.trailingAnchor, constant: 10).isActive = true
-        windSpeedValueLabel.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -10).isActive = true
-        windSpeedValueLabel.heightAnchor.constraint(equalTo: view.safeAreaLayoutGuide.heightAnchor, multiplier: 0.5 / 6).isActive = true
+    /// Add wind speed value  and setup constraints
+    private func setupWindSpeedValue() {
+        view.addSubview(windSpeedValue)
+        windSpeedValue.topAnchor.constraint(equalTo: humidityValue.bottomAnchor).isActive = true
+        windSpeedValue.leadingAnchor.constraint(equalTo: windSpeedLabel.trailingAnchor, constant: 10).isActive = true
+        windSpeedValue.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -10).isActive = true
+        windSpeedValue.heightAnchor.constraint(equalTo: view.safeAreaLayoutGuide.heightAnchor, multiplier: 0.5 / numberOfLabels).isActive = true
     }
     
-    private func createLabel(text: String?) -> UILabel {
-        let label = UILabel()
-        label.textAlignment = .center
-        label.font = UIFont.systemFont(ofSize: 14)
-        label.text = text
-        label.translatesAutoresizingMaskIntoConstraints = false
-        return label
+    // MARK: - Class methods
+    
+    /// Displays the received weather data in labels
+    private func displayWeatherData() {
+        viewModel?.setWeatherData = { [weak self] weatherData in
+            self?.title = weatherData.name
+            self?.descriptionValue.text = weatherData.weather.first?.description
+            self?.currentTemperatureValue.text = "\(weatherData.main.temp) ºC"
+            self?.maxTemperatureValue.text = "\(weatherData.main.temp_max) ºC"
+            self?.minTemperatureValue.text = "\(weatherData.main.temp_min) ºC"
+            self?.humidityValue.text = "\(weatherData.main.humidity) %"
+            self?.windSpeedValue.text = "\(weatherData.wind.speed) km/h"
+            self?.showCityLocation(latitude: weatherData.coord.lat,
+                                   longitude: weatherData.coord.lon,
+                                   cityName: weatherData.name)
+        }
+    }
+    
+    /// Displays the selected city on the map. Also puts a mark with the name of the selected city
+    /// - Parameters:
+    ///   - latitude: The latitude at which the selected city is located
+    ///   - longitude: The longitude at which the selected city is located
+    ///   - cityName: Name of the selected city
+    private func showCityLocation(latitude: Double, longitude: Double, cityName: String) {
+        let locationLatitude = CLLocationDegrees(floatLiteral: latitude)
+        let locationLongitude = CLLocationDegrees(floatLiteral: longitude)
+        let location = CLLocationCoordinate2D(latitude: locationLatitude, longitude: locationLongitude)
+        let region = MKCoordinateRegion(center: location,
+                                        latitudinalMeters: locationDistance,
+                                        longitudinalMeters: locationDistance)
+        let anotation = MKPointAnnotation()
+        anotation.coordinate = location
+        anotation.title = cityName
+        mapView.addAnnotation(anotation)
+        mapView.setRegion(region, animated: true)
     }
 }

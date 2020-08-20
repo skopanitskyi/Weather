@@ -8,8 +8,12 @@
 
 import UIKit
 
+/// Custom cities table view cell which displays the city name and image
 class CitiesTableViewCell: UITableViewCell {
     
+    // MARK: - Create UI elements
+    
+    /// Create city image view
     public var cityImageView: UIImageView = {
         let imageView = UIImageView()
         imageView.contentMode = .scaleToFill
@@ -17,6 +21,7 @@ class CitiesTableViewCell: UITableViewCell {
         return imageView
     }()
     
+    /// Create city name label
     public var cityNameLabel: UILabel = {
         let label = UILabel()
         label.numberOfLines = 2
@@ -25,6 +30,8 @@ class CitiesTableViewCell: UITableViewCell {
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
+    
+    // MARK: - Class constructors
     
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
@@ -36,6 +43,9 @@ class CitiesTableViewCell: UITableViewCell {
         fatalError("init(coder:) has not been implemented")
     }
     
+    // MARK: - Add UI elemets and setup constraints
+    
+    /// Add city image view and setup constraints
     private func setupCityImageView() {
         addSubview(cityImageView)
         cityImageView.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 5).isActive = true
@@ -44,6 +54,7 @@ class CitiesTableViewCell: UITableViewCell {
         cityImageView.widthAnchor.constraint(equalToConstant: 65).isActive = true
     }
     
+    /// Add city name label and setup constraints
     private func setupCityNameLabel() {
         addSubview(cityNameLabel)
         cityNameLabel.topAnchor.constraint(equalTo: contentView.safeAreaLayoutGuide.topAnchor, constant: 5).isActive = true
