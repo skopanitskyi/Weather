@@ -24,6 +24,7 @@
 		22F6542A24EDA518003CEED1 /* CitiesCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22F6542924EDA518003CEED1 /* CitiesCoordinator.swift */; };
 		22F6542C24EDAEF4003CEED1 /* WeatherCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22F6542B24EDAEF4003CEED1 /* WeatherCoordinator.swift */; };
 		22F6542F24EE719F003CEED1 /* URLRequestService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22F6542E24EE719F003CEED1 /* URLRequestService.swift */; };
+		22F6543124EFD563003CEED1 /* WeatherTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22F6543024EFD563003CEED1 /* WeatherTableViewCell.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -46,6 +47,7 @@
 		22F6542924EDA518003CEED1 /* CitiesCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CitiesCoordinator.swift; sourceTree = "<group>"; };
 		22F6542B24EDAEF4003CEED1 /* WeatherCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeatherCoordinator.swift; sourceTree = "<group>"; };
 		22F6542E24EE719F003CEED1 /* URLRequestService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = URLRequestService.swift; sourceTree = "<group>"; };
+		22F6543024EFD563003CEED1 /* WeatherTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeatherTableViewCell.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -125,6 +127,7 @@
 			isa = PBXGroup;
 			children = (
 				22F6541624EC5455003CEED1 /* CitiesTableViewCell.swift */,
+				22F6543024EFD563003CEED1 /* WeatherTableViewCell.swift */,
 			);
 			path = Cells;
 			sourceTree = "<group>";
@@ -219,6 +222,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				22F6543124EFD563003CEED1 /* WeatherTableViewCell.swift in Sources */,
 				22F6541224EC0046003CEED1 /* NetworkService.swift in Sources */,
 				22F6542424ED4F0D003CEED1 /* WeatherViewModel.swift in Sources */,
 				22F6542824EDA10F003CEED1 /* AppCoordinator.swift in Sources */,

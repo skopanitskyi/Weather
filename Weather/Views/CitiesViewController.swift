@@ -131,6 +131,7 @@ extension CitiesViewController: UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         guard let cell = tableView.dequeueReusableCell(withIdentifier: reuseIdentifier, for: indexPath) as? CitiesTableViewCell else { return UITableViewCell() }
+        
         cell.cityNameLabel.text = viewModel?.getCityName(at: indexPath.row, isFiltering: isFiltering)
         viewModel?.getImage(at: indexPath.row) { image in
             cell.cityImageView.image = image
