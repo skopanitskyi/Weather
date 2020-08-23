@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		223E522C24F270E100608109 /* TableHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 223E522B24F270E100608109 /* TableHeaderView.swift */; };
 		22F653F824EBF465003CEED1 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22F653F724EBF465003CEED1 /* AppDelegate.swift */; };
 		22F653FA24EBF465003CEED1 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22F653F924EBF465003CEED1 /* SceneDelegate.swift */; };
 		22F653FC24EBF465003CEED1 /* CitiesViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22F653FB24EBF465003CEED1 /* CitiesViewController.swift */; };
@@ -28,6 +29,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		223E522B24F270E100608109 /* TableHeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TableHeaderView.swift; sourceTree = "<group>"; };
 		22F653F424EBF465003CEED1 /* Weather.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Weather.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		22F653F724EBF465003CEED1 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		22F653F924EBF465003CEED1 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
@@ -101,6 +103,7 @@
 			children = (
 				22F653FB24EBF465003CEED1 /* CitiesViewController.swift */,
 				22F6541C24ECFE46003CEED1 /* WeatherViewController.swift */,
+				223E522B24F270E100608109 /* TableHeaderView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -227,6 +230,7 @@
 				22F6542424ED4F0D003CEED1 /* WeatherViewModel.swift in Sources */,
 				22F6542824EDA10F003CEED1 /* AppCoordinator.swift in Sources */,
 				22F6542A24EDA518003CEED1 /* CitiesCoordinator.swift in Sources */,
+				223E522C24F270E100608109 /* TableHeaderView.swift in Sources */,
 				22F6541D24ECFE47003CEED1 /* WeatherViewController.swift in Sources */,
 				22F6542C24EDAEF4003CEED1 /* WeatherCoordinator.swift in Sources */,
 				22F6541424EC0FD6003CEED1 /* CitiesViewModel.swift in Sources */,

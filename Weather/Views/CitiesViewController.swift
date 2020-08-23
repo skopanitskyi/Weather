@@ -11,7 +11,7 @@ import UIKit
 /// Cities view controller displays all available cities
 class CitiesViewController: UIViewController {
     
-    // MARK: - Class instance
+    // MARK: - Class instances
     
     /// Cities view model istance
     public var viewModel: CitiesViewModelProtocol?

@@ -12,7 +12,7 @@ import MapKit
 /// Weather view controller displays the selected city on the map as well as weather information
 class WeatherViewController: UIViewController {
     
-    // MARK: - Class instance
+    // MARK: - Class instances
     
     /// Number of labels that display information
     private let numberOfLabels: CGFloat = 6
@@ -26,11 +26,17 @@ class WeatherViewController: UIViewController {
     /// Reuse indentifier for cell
     private let reuseIdentifier = "Cell"
     
+    /// Returns the frame for the header view
+    private var frame: CGRect {
+        return .init(x: 0, y: 0, width: view.bounds.width, height: view.bounds.height / 2)
+    }
+    
     // MARK: - Create UI elements
     
     /// Create map view
     private lazy var mapView: MKMapView = {
-        let mapView = MKMapView(frame: CGRect(x: 0, y: 0, width: view.bounds.width, height: view.bounds.height / 2))
+        let mapView = MKMapView()
+        mapView.translatesAutoresizingMaskIntoConstraints = false
         mapView.mapType = .standard
         return mapView
     }()
@@ -49,26 +55,14 @@ class WeatherViewController: UIViewController {
         super.viewDidLoad()
         view.backgroundColor = .white
         setupTableView()
+        setupTableHeaderView()
         displayWeatherData()
-        
-        tableView.addSubview(mapView)
-        let height = view.bounds.height / 2
-        
-        tableView.contentInset = .init(top: height, left: 0, bottom: 0, right: 0)
-        tableView.contentOffset = .init(x: 0, y: -height)
-        
-        
     }
     
-    func scrollViewDidScroll(_ scrollView: UIScrollView) {
-        let height = view.bounds.height / 2
-        var frame = CGRect(x: 0, y: -height, width: view.bounds.width, height: height)
-        
-        if tableView.contentOffset.y < height {
-            frame.origin.y = tableView.contentOffset.y
-            frame.size.height = -tableView.contentOffset.y
-        }
-        mapView.frame = frame
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        guard let header = tableView.tableHeaderView as? TableHeaderView else { return }
+        header.frame = frame
     }
     
     // MARK: - Add UI elements and setting constraints
@@ -83,6 +77,13 @@ class WeatherViewController: UIViewController {
         tableView.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor).isActive = true
         tableView.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor).isActive = true
         tableView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor).isActive = true
+    }
+    
+    /// Add table header view
+    private func setupTableHeaderView() {
+        let header = TableHeaderView(frame: frame)
+        header.add(mapView: mapView)
+        tableView.tableHeaderView = header
     }
     
     // MARK: - Class methods
@@ -124,15 +125,14 @@ class WeatherViewController: UIViewController {
 
 extension WeatherViewController: UITableViewDelegate {
     
+    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+        return 40
+    }
 }
 
 // MARK: - TableViewDataSource
 
 extension WeatherViewController: UITableViewDataSource {
-    
-    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        return 40
-    }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return viewModel?.numberOfRowsInSection() ?? 0
@@ -146,5 +146,15 @@ extension WeatherViewController: UITableViewDataSource {
         cell.weatherDataValue.text = weather?.value
         cell.selectionStyle = .none
         return cell
+    }
+}
+
+// MARK: - ScrollViewDelegate
+
+extension WeatherViewController: UIScrollViewDelegate {
+    
+    func scrollViewDidScroll(_ scrollView: UIScrollView) {
+        guard let header = tableView.tableHeaderView as? TableHeaderView else { return }
+        header.scrollViewDidScroll(scrollView: scrollView)
     }
 }
